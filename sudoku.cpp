@@ -1,7 +1,7 @@
 #include<iostream>
-#include<stdio.h>
-#include<stdlib.h>
-#include <pthread.h>
+#include<pthread.h>
+#include<fcntl.h>
+#include<unistd.h>
 using namespace std;
 
 #define GRID_ROWS 9
@@ -44,7 +44,7 @@ int main(){
 
 void write_grid()
 {
-	int fd=open("output.txt",_WRONLY);
+	int fd=open("output.txt",O_WRONLY);
 	
 }
 void print_grid()
