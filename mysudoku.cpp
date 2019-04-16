@@ -7,6 +7,7 @@ using namespace std;
 struct limitcheck
 {
 	int startingrow,startingcol,endingrow,endingcol;
+	bool check;
 };
 
 int grid[9][9]={{6,2,4,5,3,9,1,8,7},{5,1,9,7,2,8,6,3,4},{8,3,7,6,1,4,2,9,5},
@@ -44,7 +45,7 @@ void *checkeverycol(void* arg)
 	l=(struct limitcheck * ) arg;
 	for (int i = 0; i < 9; ++i)
 	{
-		int * checkarr=new int[9]={-1,-1,-1,-1,-1,-1,-1,-1,-1};
+		int checkarr[9]={-1,-1,-1,-1,-1,-1,-1,-1,-1};
 		for (int j = 0; j < 9; ++j)
 		{
 			checkarr[(grid[i][j])-1]=1;
@@ -52,11 +53,13 @@ void *checkeverycol(void* arg)
 		for (int k = 0; k < 9; ++k)
 		{
 			if(checkarr[k]!=1){
-				pthread_exit(NULL);
+				l->check=false;
+				pthread_exit(l);
 			}
 		}
 	}
-	pthread_exit(NULL);
+	l->check=true;
+				pthread_exit(l);
 }
 
 int main()
@@ -65,13 +68,12 @@ int main()
 	pthread_create(&threadID,NULL,&printgrid,NULL);
 	pthread_join(threadID,NULL);
 
-
-
-	limitcheck colwise;
+	struct limitcheck colwise;
 	colwise.startingrow=0;
 	colwise.startingcol=0;
 	colwise.endingrow=9;
 	colwise.endingcol=9;
+	colwise.check=true;
 
 	pthread_t threadID2;
 	// pthread_attr_t attr;
@@ -79,6 +81,7 @@ int main()
 	// pthread_attr_setdetachstate(&attr,PTHREAD_CREATE_DETACHED);
 	pthread_create(&threadID2,NULL,&checkeverycol,&colwise);
 
-	pthread_exit(NULL);
+	pthread_join(threadID2,(void**)& colwise);
+	cout<<endl<<colwise.check<<endl;
 	return 0;
 }
