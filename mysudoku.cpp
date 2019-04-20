@@ -90,8 +90,14 @@ void* checkeveryrow(void* arg)
 				pthread_exit(m);
 }
 
+void* checkeverygrid(void* arg)
+{
+
+}
+
 int main()
 {
+	
 	pthread_t threadID;
 	pthread_create(&threadID,NULL,&printgrid,NULL);
 	pthread_join(threadID,NULL);
@@ -139,6 +145,35 @@ int main()
 	{
 		cout<<"Row thread returned false"<<endl;
 	}
+	
+
+	struct limitcheck gridwise;
+	gridwise.startingrow=0;
+	gridwise.startingcol=0;
+	gridwise.endingrow=2;
+	gridwise.endingcol=2;
+	gridwise.check=true;
+
+	pthread_t threadIDgrid[9];
+
+	for (int i=1;i<=9;i++)
+	{
+		pthread_create(&threadIDgrid[i],NULL,&checkeverygrid,&gridwise);
+		pthread_join(threadIDgrid[i],void(**)& gridwise);
+		if (i%3==0)
+		{
+			gridwise.startingrow+=3;
+			gridwise.endingrow+=3;
+			gridwise.startingcol=0;
+			gridwise.endingcol=2;
+		}
+		else
+		{
+			gridwise.startingcol+=3;
+			gridwise.endingcol+=3;
+		}
+	}
+
 
 	return 0;
 }
