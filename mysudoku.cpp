@@ -33,8 +33,6 @@ void *checkeverycol(void* arg)
 	int m=((limitcheck*)arg)->startingcol;
 	int n=((limitcheck*)arg)->endingrow;
 	int o=((limitcheck*)arg)->endingcol;
-
-
 	cout<<l<<endl;
 	cout<<m<<endl;
 	cout<<n<<endl;
@@ -48,7 +46,10 @@ void *checkeverycol(void* arg)
 		int checkarr[9]={-1,-1,-1,-1,-1,-1,-1,-1,-1};
 		for (int j = 0; j < 9; ++j)
 		{
-			checkarr[(grid[i][j])-1]=1;
+			if (grid[j][i]>0 && grid[j][i]<10)
+			{
+				checkarr[(grid[j][i])-1]=1;
+			}
 		}
 		for (int k = 0; k < 9; ++k)
 		{
@@ -60,6 +61,33 @@ void *checkeverycol(void* arg)
 	}
 	l->check=true;
 				pthread_exit(l);
+}
+
+void* checkeveryrow(void* arg)
+{
+	bool check=true;
+	struct limitcheck *m;
+	m=(struct limitcheck * ) arg;
+	for (int i = 0; i < 9; ++i)
+	{
+		int checkarr[9]={-1,-1,-1,-1,-1,-1,-1,-1,-1};
+		for (int j = 0; j < 9; ++j)
+		{
+			if (grid[i][j]>0 && grid[i][j]<10)
+			{
+				checkarr[(grid[i][j])-1]=1;
+			}
+		}
+		for (int k = 0; k < 9; ++k)
+		{
+			if(checkarr[k]!=1){
+				m->check=false;
+				pthread_exit(m);
+			}
+		}
+	}
+	m->check=true;
+				pthread_exit(m);
 }
 
 int main()
@@ -83,5 +111,34 @@ int main()
 
 	pthread_join(threadID2,(void**)& colwise);
 	cout<<endl<<colwise.check<<endl;
+	if (colwise.check)
+	{
+		cout<<"Column thread returned true"<<endl;
+	}
+	else
+	{
+		cout<<"Column thread returned false"<<endl;
+	}
+
+	struct limitcheck rowwise;
+	rowwise.startingrow=0;
+	rowwise.startingcol=0;
+	rowwise.endingrow=9;
+	rowwise.endingcol=9;
+	rowwise.check=true;
+
+	pthread_t threadID3;
+	pthread_create(&threadID3,NULL,&checkeveryrow,&rowwise);
+	pthread_join(threadID3,(void**)& rowwise);
+	cout<<endl<<rowwise.check<<endl;
+	if (rowwise.check)
+	{
+		cout<<"Row thread returned true"<<endl;
+	}
+	else
+	{
+		cout<<"Row thread returned false"<<endl;
+	}
+
 	return 0;
 }
