@@ -4,6 +4,8 @@
 #include<unistd.h>
 using namespace std;
 
+
+pthread_mutex_t mutex1;
 struct limitcheck
 {
 	int startingrow,startingcol,endingrow,endingcol;
@@ -92,11 +94,19 @@ void* checkeveryrow(void* arg)
 
 void* checkeverygrid(void* arg)
 {
+	cout<<"checking_grid"<<endl;
+	bool check=true;
+	struct limitcheck *m;
+	m=(struct limitcheck * ) arg;
 
+	cout<<m->startingrow<<m->startingcol<<" , "<<m->endingrow<<m->endingcol<<endl;
+
+	pthread_exit(NULL);
 }
 
 int main()
 {
+	
 	
 	pthread_t threadID;
 	pthread_create(&threadID,NULL,&printgrid,NULL);
@@ -154,12 +164,13 @@ int main()
 	gridwise.endingcol=2;
 	gridwise.check=true;
 
-	pthread_t threadIDgrid[9];
+	pthread_t threadIDgrid[10];
 
 	for (int i=1;i<=9;i++)
 	{
 		pthread_create(&threadIDgrid[i],NULL,&checkeverygrid,&gridwise);
-		pthread_join(threadIDgrid[i],void(**)& gridwise);
+		pthread_join(threadIDgrid[i],(void**)&gridwise);
+		//cout<<endl<<gridwise.check<<endl;
 		if (i%3==0)
 		{
 			gridwise.startingrow+=3;
